@@ -11,7 +11,8 @@
 
 二、使用
 1、更新config.py文件，从UCloud控制台上找到自己的公钥、私钥和项目id等信息。
-2、在main.py目录下，注释掉84行的#，注释后这样的：
+2、将eip填写到eip.txt文件里，每行一个。
+3、在main.py目录下，注释掉84行的#，注释后这样的：
 
 	#把每个id取出来，并续费。
 	for list in total_renew:
