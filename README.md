@@ -12,6 +12,7 @@
   python setup.py install
 
 【使用】
+
 1、打开config.py文件，从UCloud控制台上找到自己的公钥、私钥和项目id等信息，renew 是开关，填YES则会真实续费，填其他则只打印要续费的关联id。
 
 2、将eip填写到eip.txt文件里，每行一个。
