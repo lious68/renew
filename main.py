@@ -20,15 +20,16 @@ total_renew = [] #需要续费的总清单
 id_array = []  #每个eip关联的eipid，uhostid和磁盘id
 switch_arry = [] #用于转换的中间列表
 
-def get_eipid(eip):
+def initial_request():
 	try:
 		resp = client.invoke("DescribeEIP")
 	except exc.RetCodeException as e:
 		resp = e.json()
-	else:
-		pass
+	return resp
 	#获得该项目的所有EIP，遍历找到输入的eip
-	eipSets = resp.get('EIPSet')
+
+def get_eipid(eip):
+	eipSets = initial_request().get('EIPSet')
 	for eipSet in eipSets:
 		ip = eipSet.get('EIPAddr')[0].get('IP')
 		if ip == eip: #如果找到输入的IP，则记下eipid和uhostid
@@ -36,10 +37,8 @@ def get_eipid(eip):
 			uhost_id = eipSet.get('Resource').get('ResourceID')
 			id_array.append(eip_id)
 			id_array.append(uhost_id)
-			#print(id_array)
-		else:
-			pass
-	return uhost_id
+			return  uhost_id
+
 
 def get_diskid(uhost_id):
 	d = {"UHostIds":[uhost_id]} #构造请求字典
@@ -52,7 +51,8 @@ def get_diskid(uhost_id):
 
 		for i in range(len(resp['UHostSet'][0]['DiskSet'])):
 			if i < 1:
-				print('just only system disk')
+				#print('just only system disk')
+				pass
 			else:
 				disk_id = resp['UHostSet'][0]['DiskSet'][i]['DiskId']
 				id_array.append(disk_id)
@@ -69,19 +69,24 @@ def create_renew(resource_id):
 	else:
 		print(json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')))
 
-
-def main():
-	#从同目录下的文件eip.txt里取出eip，按行读取后，找出关联的eipid，uhostid，diskid
+def file_to_id():
 	with open('eip.txt','r') as f:
 		for line in f.readlines():
 			get_diskid(get_eipid(line.strip()))
+	return total_renew
+
+def main():
+	#从同目录下的文件eip.txt里取出eip，按行读取后，找出关联的eipid，uhostid，diskid
+	file_to_id()
 	print(total_renew)
 
 	#把每个id取出来，并续费。
 	for list in total_renew:
 		for resourceId in list:
-			print(resourceId)
-			#create_renew(resourceId) #
+			if renew == 'YES':
+				create_renew(resourceId)
+			else:
+				print(resourceId)
 
 if __name__=='__main__':
 	main()
