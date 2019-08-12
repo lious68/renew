@@ -25,7 +25,8 @@
 注意：需要用主账号，方可执行续费权限，子账号不行。
 另外,为方便win下运行,封装成EXE可以便捷使用，下载地址：
 renew（续费）：http://duoyun.cn-bj.ufileos.com/renew.7z
+
 check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
 
-运行结果：
-[图片]
+运行结果截图：
+![image](https://github.com/lious68/renew/blob/master/images/check.png)
