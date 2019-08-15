@@ -1,22 +1,31 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from ucloud.core import exc
-from ucloud.client import Client
-import urllib.request
-import time
 import os
 import json
+import time
+import datetime
 import configparser
+import urllib.request
+from ucloud.core import exc
+from ucloud.client import Client
 
+
+#读取配置
 config = configparser.ConfigParser()
-config.read('config.ini',encoding='UTF-8')
+config.read('config.ini',encoding='"utf-8-sig')
 public_key = config.get("key","public_key")
 private_key = config.get("key","private_key")
 project_id = config.get("key","project_id")
 region = config.get("key","region")
+year = int(config.get("check_account","year"))
+month = int(config.get("check_account","month"))
 
+#读取日期，并转换成时间戳
+make_date = datetime.datetime(year,month,10)
+timestamp = time.mktime(make_date.timetuple())
 
+#构造请求
 client = Client({
     "region": region,
     "project_id": project_id,
@@ -26,7 +35,7 @@ client = Client({
 
 
 
-timestamp = time.time()
+
 
 def initial_request():
 	d = {"BillPeriod":timestamp,"BillType":"1","PaidType":"1"}

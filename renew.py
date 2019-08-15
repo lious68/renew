@@ -9,33 +9,41 @@ from ucloud.core import exc
 from ucloud.client import Client
 
 
-
+# with open("config.ini",'r',encoding="utf-8") as f:
+# 	content = f.read()
+# 	content = re.sub(r"\xfe\xff","",content)
+# 	content = re.sub(r"\xff\xfe","",content)
+# 	content = re.sub(r"\xef\xbb\xbf", "", content)
+#
 
 #设置logger
 logger = logging.getLogger('ucloud')
 logger.disabled = True
 
-#从INI配置中获取文件
+
+
+
+total_renew = [] #需要续费的总清单
+id_array = []  #每个eip关联的eipid，uhostid和磁盘id
+switch_arry = [] #用于转换的中间列表
+
+#读取配置
 config = configparser.ConfigParser()
 config.read('config.ini',encoding='"utf-8-sig')
 public_key = config.get("key","public_key")
 private_key = config.get("key","private_key")
 project_id = config.get("key","project_id")
 region = config.get("key","region")
-renew_status = config.get("status","renew_status")
-
+renew_status = config.get("renew","renew_status")
 
 #构造client字典
 client = Client({
-    "region": region,
-    "project_id": project_id,
-    "public_key" : public_key,
-    "private_key" : private_key
+	"region": region,
+	"project_id": project_id,
+	"public_key" : public_key,
+	"private_key" : private_key
 })
 
-total_renew = [] #需要续费的总清单
-id_array = []  #每个eip关联的eipid，uhostid和磁盘id
-switch_arry = [] #用于转换的中间列表
 
 def initial_request():
 	try:
