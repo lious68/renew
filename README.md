@@ -8,6 +8,7 @@
 【windows】：
 
 已封装成EXE可以直接使用，下载地址：
+
 renew（续费）：http://duoyun.cn-bj.ufileos.com/renew.7z
 
 check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
@@ -17,7 +18,9 @@ check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
 1、首先安装ucloud sdk。
 
   方式1（推荐）：pip install ucloud-sdk-python3 
+  
   方式2（需要把renew放到该目录下）：
+  
   clone https://github.com/ucloud/ucloud-sdk-python3.git
   cd ucloud-sdk-python3
   python setup.py install
