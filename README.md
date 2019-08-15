@@ -5,6 +5,14 @@
 
 
 【安装】
+【windows】：
+
+已封装成EXE可以直接使用，下载地址：
+renew（续费）：http://duoyun.cn-bj.ufileos.com/renew.7z
+
+check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
+
+【linux】
 
 1、首先安装ucloud sdk。
 
@@ -14,7 +22,7 @@
   cd ucloud-sdk-python3
   python setup.py install
 
-【使用】
+【如何使用】
 
 1、打开config.ini文件，从UCloud控制台上找到自己的公钥、私钥和项目id等信息，renew 是开关，填YES则会真实续费，填其他则只打印要续费的关联id。
 
@@ -22,11 +30,7 @@
 
 3、对账运行check_account即可。
   
-注意：需要用主账号，方可执行续费权限，子账号不行。
-另外,为方便win下运行,封装成EXE可以便捷使用，下载地址：
-renew（续费）：http://duoyun.cn-bj.ufileos.com/renew.7z
-
-check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
+注意：需要用主账号，方可执行续费权限，子账号不行
 
 运行结果截图：
 ![image](https://github.com/lious68/renew/blob/master/images/check.png)
