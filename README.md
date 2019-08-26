@@ -14,6 +14,8 @@ renew（续费）：http://duoyun.cn-bj.ufileos.com/renew.7z
 
 check_account(对账)：http://duoyun.cn-bj.ufileos.com/check_account.7z
 
+verify_account(对账，并写入到excel)：http://duoyun.cn-bj.ufileos.com/verify_account.7z
+
 【linux】
 
 1、首先安装ucloud sdk。
