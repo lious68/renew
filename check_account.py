@@ -9,6 +9,7 @@ from get_bill_csv import get_csv
 mem_csv = []
 bill_array = []
 all_cost = []
+id_cost = []
 
 def csv_to_mem(): #将csv文件转换成内存里的二维数组。
 	with open(get_csv(),'r',encoding='UTF-8') as f:
@@ -23,9 +24,12 @@ def get_singleIdCost(resource_id):  #从账单查出该id所有当月账单，�
 	for i in range(len(mem_csv)):
 		if resource_id in mem_csv[i][4]:
 			bill_array.append(float(mem_csv[i][20]))
-	totalCost = sum(bill_array)
-	print('The id %s cost %.2f ' %(resource_id,totalCost))
-	return totalCost
+	singleCost = sum(bill_array)
+	id_cost.append(resource_id)
+	id_cost.append(singleCost)
+	print(id_cost)
+	print('The id %s cost %.2f ' %(resource_id,singleCost))
+	return singleCost
 
 	
 
