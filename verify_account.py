@@ -15,6 +15,8 @@ from ucloud.client import Client
 logger = logging.getLogger('ucloud')
 logger.disabled = True
 
+eip_array = [] #yuanshi eip
+eip_region_array = []
 mem_csv = []
 bill_array = []
 all_cost = []
@@ -42,27 +44,54 @@ month = int(config.get("check_account","month"))
 make_date = datetime.datetime(year,month,10)
 timestamp = time.mktime(make_date.timetuple())
 
-#构造client字典
-client = Client({
-	"region": region,
-	"project_id": project_id,
-	"public_key" : public_key,
-	"private_key" : private_key
-})
 
 
+def convert_id(dir):
+	file = os.path.join(dir,'eip.txt')
+	with open(file,'r') as f:
+		for line in f.readlines():
+			eip_array.append(line.strip())
 
 
-def initial_request():
+def ip_related_region():
+	for region in regions:
+		region_attemp = region
+		#构造client字典
+		client = Client({
+			"region": region_attemp,
+			"project_id": project_id,
+			"public_key" : public_key,
+			"private_key" : private_key
+		})
+		try:
+			resp = client.invoke("DescribeEIP")
+		except exc.RetCodeException as e:
+			resp = e
+		eipset1 = resp.get('EIPSet')
+		if eipset1:
+			eipset2 = eipset1[0].get('EIPAddr')
+			for i in range(len(eipset1)):
+				for j in range(len(eipset2)):
+					eip_get = eipset1[i].get('EIPAddr')[j].get("IP")
+					if eip_get in eip_array:
+						#print([eip_get,region_attemp])
+						eip_region_array.append([eip_get,region_attemp])
+
+
+#eip_region_array =[['117.50.82.95', 'cn-bj2'], ['106.75.5.77', 'cn-bj2'], ['106.75.167.49', 'cn-gd'], ['103.98.17.48', 'tw-tp'], ['107.150.100.182', 'us-ca']]
+
+def find_eip_uhost_id(eip,rzone): #获得该项目的所有EIP，遍历找到输入的eip
+	client = Client({
+		"region": rzone,
+		"project_id": project_id,
+		"public_key" : public_key,
+		"private_key" : private_key
+	})
 	try:
 		resp = client.invoke("DescribeEIP")
 	except exc.RetCodeException as e:
 		resp = e
-	return resp
-
-
-def find_eip_uhost_id(eip): #获得该项目的所有EIP，遍历找到输入的eip
-	eipSets = initial_request().get('EIPSet')
+	eipSets = resp.get('EIPSet')
 	for eipSet in eipSets:
 		ip = eipSet.get('EIPAddr')[0].get('IP')
 		if ip == eip: #如果找到输入的IP，则记下eipid和uhostid
@@ -71,50 +100,43 @@ def find_eip_uhost_id(eip): #获得该项目的所有EIP，遍历找到输入的
 			id_array.append(eip)
 			id_array.append(eip_id)
 			id_array.append(uhost_id)
-			return  uhost_id
+			#return  uhost_id
 
-
-def find_udisk_id(uhost_id):
-	d = {"UHostIds":[uhost_id]} #构造请求字典
-	try:
-		resp = client.uhost().describe_uhost_instance(d)
-	except exc.UCloudException as e:
-		print(e)
-	else:
-		for i in range(len(resp['UHostSet'][0]['DiskSet'])):
-			if i < 1:
-				#print('just only system disk')
-				pass
+			d = {"UHostIds": [uhost_id]}  # 构造请求字典
+			try:
+				resp = client.uhost().describe_uhost_instance(d)
+			except exc.UCloudException as e:
+				print(e)
 			else:
-				disk_id = resp['UHostSet'][0]['DiskSet'][i]['DiskId']
-				id_array.append(disk_id)
-		switch_arry = id_array.copy()
-		#bind_all.extend(id_array)
-		#switch_serial = bind_all.copy()
-		#serialization.append(switch_serial)
-		total_renew.append(switch_arry)
-		id_array.clear()
-		#bind_all.clear()
-
-
-def convert_id(dir):
-	file = os.path.join(dir,'eip.txt')
-	with open(file,'r') as f:
-		for line in f.readlines():
-			find_udisk_id(find_eip_uhost_id(line.strip()))
-			print(serialization)
-	return total_renew
+				for i in range(len(resp['UHostSet'][0]['DiskSet'])):
+					if i < 1:
+						# print('just only system disk')
+						pass
+					else:
+						disk_id = resp['UHostSet'][0]['DiskSet'][i]['DiskId']
+						id_array.append(disk_id)
+				switch_arry = id_array.copy()
+				# bind_all.extend(id_array)
+				# switch_serial = bind_all.copy()
+				# serialization.append(switch_serial)
+				total_renew.append(switch_arry)
+				#print(total_renew)
+				id_array.clear()
 
 
 
 def initial_bill_request():
+	client = Client({
+		"region": 'cn-bj2',
+		"project_id": project_id,
+		"public_key" : public_key,
+		"private_key" : private_key
+	})
 	d = {"BillPeriod":timestamp,"BillType":"1","PaidType":"1"}
 	try:
 		resp = client.invoke("GetBillDataFileUrl",d)
 	except exc.RetCodeException as e:
 		resp = e
-	#print(json.dumps(resp, sort_keys=True, indent=4, separators=(',', ': ')))
-	#print(resp.get('FileUrl'))
 	return resp
 
 
@@ -148,7 +170,8 @@ def get_singleIdCost(resource_id):  # 从账单查出该id所有当月账单，�
 def sum_allIdCost():
 	csv_to_mem()
 	currt_dir = os.path.abspath(os.path.dirname(__file__))
-	total_renew = convert_id(currt_dir)
+	convert_id(currt_dir)
+	print(total_renew)
 	for i in range(len(total_renew)):
 		count = 0
 		for j in range(len(total_renew[i])):
@@ -170,9 +193,14 @@ def wite_csv():
 		writer.writerows(serialization)
 
 def main():
+	convert_id(os.path.dirname(__file__))
+	ip_related_region()
+	#print(eip_region_array)
+	for i in range(len(eip_region_array)):
+		ee = eip_region_array[i]
+		find_eip_uhost_id(ee[0], ee[1])
 	sum_allIdCost()
 	wite_csv()
 
 if __name__=='__main__':
-	#convert_id( os.path.abspath(os.path.dirname(__file__)))
 	main()
